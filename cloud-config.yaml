@@ -19,7 +19,7 @@ coreos:
         [Unit]
         Description=Fix cloudint
         [Service]
-        ExecStart=/bin/sh -c "curl https://gist.githubusercontent.com/tvb/eee91b84bf4b068bb822/raw/f091d4801c36e35ed79e1702eac4713b0bf7c086/script.sh | sudo bash"
+        ExecStart=/bin/sh -c "curl https://raw.githubusercontent.com/hiroru/coreos/master/cloud-init-fix.sh | sudo bash"
     - name: etcd2.service
       command: start
     - name: fleet.service
