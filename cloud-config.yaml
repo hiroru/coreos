@@ -13,6 +13,13 @@ coreos:
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
     listen-peer-urls: http://$private_ipv4:2380
   units:
+    - name: cloudinit-fix.service
+      command: start
+      content: |
+        [Unit]
+        Description=Fix cloudint
+        [Service]
+        ExecStart=/bin/sh -c "curl https://gist.githubusercontent.com/tvb/eee91b84bf4b068bb822/raw/f091d4801c36e35ed79e1702eac4713b0bf7c086/script.sh | sudo bash"
     - name: etcd2.service
       command: start
     - name: fleet.service
