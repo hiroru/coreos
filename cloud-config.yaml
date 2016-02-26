@@ -4,7 +4,7 @@ coreos:
   etcd2:
     # generate a new token for each unique cluster from https://discovery.etcd.io/new?size=3
     # specify the initial size of your cluster with ?size=X
-    discovery: https://discovery.etcd.io/24a6b2af37f4301db87e295c1ae97419
+    discovery: https://discovery.etcd.io/b97d8560203ba217980b0cb19c1d22b0
     # multi-region and multi-cloud deployments need to use $public_ipv4
     advertise-client-urls: http://$private_ipv4:2379,http://$private_ipv4:4001
     initial-advertise-peer-urls: http://$private_ipv4:2380
@@ -13,13 +13,6 @@ coreos:
     #listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
     #listen-peer-urls: http://$private_ipv4:2380
   units:
-    - name: cloudinit-fix.service
-      command: start
-      content: |
-        [Unit]
-        Description=Fix cloudint
-        [Service]
-        ExecStart=/bin/sh -c "curl https://raw.githubusercontent.com/hiroru/coreos/master/cloud-init-fix.sh | sudo bash"
     - name: etcd2.service
       command: start
     - name: fleet.service
