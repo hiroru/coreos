@@ -22,7 +22,7 @@ done
 if [ -z "$(mount | awk '/oem/ && /rw/ {print}')" ]; then
    sudo mount -o remount,rw /usr/share/oem/
 fi
-cat > "/usr/share/oem/cloud-config.yml" <<EOF
+cat > "/tmp/cloud-config.yml" <<EOF
 #cloud-config
 
 coreos:
@@ -42,5 +42,5 @@ EOF
 export COREOS_PUBLIC_IPV4
 export COREOS_PRIVATE_IPV4
 
-sudo coreos-cloudinit --from-file='/usr/share/oem/cloud-config.yml'
+sudo coreos-cloudinit --from-file='/tmp/cloud-config.yml'
 sudo reboot
