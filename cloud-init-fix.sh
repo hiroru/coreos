@@ -2,20 +2,28 @@
 # Dirty fix for CoreOS cloud-init on Openstack with multiple interfaces.
 # by Sergi Barroso <hiroru@lionclan.org>
 
+# Defining variables
+#workdir=$(mktemp --directory)
+env="/etc/environment"
+trap "rm --force --recursive ${workdir}" SIGINT SIGTERM EXIT
+
+get_ipv4() {
+    IFACE="${1}"
+    local ip
+    while [ -z "${ip}" ]; do
+        ip=$(ip -4 -o addr show dev "${IFACE}" scope global | gawk '{split ($4, out, "/"); print out[1]}')
+        sleep .1
+    done
+    echo "${ip}"
+}
+
 until ! [[ -z $COREOS_PRIVATE_IPV4 ]]; do
-   COREOS_PRIVATE_IPV4="$(ip addr | grep eth1 | sed -n 's/.*inet.\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')"
-   COREOS_PUBLIC_IPV4="$(ip addr | grep eth0 | sed -n 's/.*inet.\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')"
-   ENV="/etc/environment"
-
-   if [ -z "$ENV" ]; then
-      echo usage: $0 /etc/environment
-      exit 1
-   fi
-   sudo touch $ENV
+   sudo touch $env
    if [ $? -ne 0 ]; then
-      echo "Error: could not write file $ENV."
+      echo "Error: could not write file $env."
    fi
-
+   export COREOS_PUBLIC_IPV4=$(get_ipv4 eth0)
+   export COREOS_PRIVATE_IPV4=$(get_ipv4 eth1)
    sudo echo "COREOS_PUBLIC_IPV4=$COREOS_PUBLIC_IPV4" > /etc/environment
    sudo echo "COREOS_PRIVATE_IPV4=$COREOS_PRIVATE_IPV4" >> /etc/environment
    source /etc/environment
@@ -32,7 +40,7 @@ coreos:
   etcd2:
     # generate a new token for each unique cluster from https://discovery.etcd.io/new?size=3
     # specify the initial size of your cluster with ?size=X
-    discovery: https://discovery.etcd.io/3f1425de225d02532c113e20cd7bb998
+    discovery: https://discovery.etcd.io/667174019038b48d0c7437f1c500a425
     # multi-region and multi-cloud deployments need to use $public_ipv4
     advertise-client-urls: http://$COREOS_PRIVATE_IPV4:2379,http://$COREOS_PRIVATE_IPV4:4001
     initial-advertise-peer-urls: http://$COREOS_PRIVATE_IPV4:2380
